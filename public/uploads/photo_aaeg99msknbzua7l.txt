@@ -1,6 +1,0 @@
-const fileNameExt = fileName.split('.').slice(-1)[0];
-      if(fileNameExt === 'jpg' || fileNameExt === 'png' || fileNameExt === 'gif') {
-        const newPhoto = new Photo({ title, author, email, src: fileName, votes: 0 });
-        await newPhoto.save(); // ...save new photo in DB
-        res.json(newPhoto);
-      } 
