@@ -1,4 +1,5 @@
 const Photo = require('../models/photo.model');
+const Voter = require('../models/Voter.model');
 
 /****** SUBMIT PHOTO ********/
 
@@ -57,8 +58,40 @@ exports.vote = async (req, res) => {
 
   try {
     const photoToUpdate = await Photo.findOne({ _id: req.params.id });
+    console.log('req.params.id', req.params.id)
+    console.log('typeof req.params', typeof req.params.id)
+
+    const newVoter = await Voter({user: 123, votes: req.params.id});
+    console.log('newVoter', newVoter);
+    console.log('newVoter.user', newVoter.user);
+    // console.log('typeof newVoter.user', typeof newVoter.user);
+    // console.log('all voters', await Voter.find())
+    // console.log('is it this user', await Voter.findOne({user: newVoter.user}));
+
+    const findedUser = await Voter.findOne({user: newVoter.user});
+    console.log('findedUser', findedUser);
+    if(findedUser) {
+      const votesArr = findedUser.votes.filter(el => el == req.params.id);
+      console.log('votesArr.length', votesArr.length);
+      console.log('findedUser.votes przed dodaniem:', findedUser.votes);
+      if(votesArr < 1) {
+        const addedVotes = findedUser.votes.push(req.params.id);
+        console.log('votes w findedUser', addedVotes);
+        console.log('findedUser.votes po dodaniem:', findedUser.votes);
+        await Voter.updateOne({user: newVoter.user}, {votes: findedUser.votes})
+      } else {
+        res.json('You can`t vote one more on this picture');
+      }
+    } else {
+      await newVoter.save();
+    }
+    console.log('all voters', await Voter.find())
+
+    
+
     if(!photoToUpdate) res.status(404).json({ message: 'Not found' });
     else {
+      
       photoToUpdate.votes++;
       photoToUpdate.save();
       res.send({ message: 'OK' });
